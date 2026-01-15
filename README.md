@@ -149,8 +149,8 @@ Sidebar ditampilkan **dinamis berdasarkan role user**.
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone <repo-url>
-cd laravel-overtime-app
+git clone https://github.com/wahyuakbarwibowo/laravel-overtime-apps
+cd laravel-overtime-apps
 ```
 
 ---
