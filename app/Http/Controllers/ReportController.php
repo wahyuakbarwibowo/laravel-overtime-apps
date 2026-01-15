@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Division;
 use App\Models\Overtime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,32 +14,43 @@ class ReportController extends Controller
     {
         $query = Overtime::query()
             ->join('users', 'users.id', '=', 'overtimes.staff_id')
+            ->leftJoin('divisions', 'divisions.id', '=', 'users.division_id')
             ->select(
-                'users.id',
+                'users.id as user_id',
                 'users.name',
-                DB::raw('SUM(TIMESTAMPDIFF(HOUR, jam_mulai, jam_selesai)) as total_jam')
+                'divisions.name as division',
+                DB::raw('SUM(TIMESTAMPDIFF(HOUR, overtimes.jam_mulai, overtimes.jam_selesai)) as total_jam')
             )
-            ->groupBy('users.id', 'users.name');
+            ->groupBy('users.id', 'users.name', 'divisions.name');
 
         if ($request->filled('from')) {
-            $query->whereDate('tanggal', '>=', $request->from);
+            $query->whereDate('overtimes.tanggal', '>=', $request->from);
         }
 
         if ($request->filled('to')) {
-            $query->whereDate('tanggal', '<=', $request->to);
+            $query->whereDate('overtimes.tanggal', '<=', $request->to);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('overtimes.status', $request->status);
         }
 
         if ($request->filled('search')) {
             $query->where('users.name', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->filled('division_id')) {
+            $query->where('users.division_id', $request->division_id);
+        }
+
+        if (auth()->user()->role === 'manager') {
+            $query->where('users.division_id', auth()->user()->division_id);
+        }
+
         return Inertia::render('report/overtime', [
-            'filters' => $request->only('from','to','status','search'),
+            'filters' => $request->only('from', 'to', 'status', 'search', 'division_id'),
             'reports' => $query->get(),
+            'divisions' => Division::get(),
         ]);
     }
 }

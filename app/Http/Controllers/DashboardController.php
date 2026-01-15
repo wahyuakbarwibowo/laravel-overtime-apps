@@ -11,12 +11,15 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        return Inertia::render( 'dashboard', [
+        return Inertia::render('dashboard', [
             'role' => $user->role->value,
             'stats' => [
                 'pending' => Overtime::where('status', 'pending')->count(),
                 'approved' => Overtime::where('status', 'approved')->count(),
                 'my_overtime' => Overtime::where('staff_id', $user->id)->count(),
+                'my_approved_overtime' => Overtime::where('staff_id', $user->id)
+                    ->where('status', 'approved')
+                    ->count(),
             ]
         ]);
     }

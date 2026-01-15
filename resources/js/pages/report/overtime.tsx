@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/select';
 import AppLayout from "@/layouts/app-layout";
 import { type BreadcrumbItem } from '@/types';
-import { OvertimeReport } from '@/types/overtime-report';
+import { type Division } from "@/types/division";
+import { type OvertimeReport } from '@/types/overtime-report';
 
 import {
     Table,
@@ -29,14 +30,16 @@ interface Props {
         to?: string;
         status?: string;
         search?: string;
+        division_id?: string;
     };
+    divisions: Division[]
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Report Lembur', href: '/report/overtime' },
 ];
 
-export default function OvertimeReportPage({ reports, filters }: Props) {
+export default function OvertimeReportPage({ reports, filters, divisions }: Props) {
     const applyFilter = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -58,7 +61,7 @@ export default function OvertimeReportPage({ reports, filters }: Props) {
                 {/* FILTER */}
                 <form
                     onSubmit={applyFilter}
-                    className="grid grid-cols-1 md:grid-cols-5 gap-4"
+                    className="grid grid-cols-1 md:grid-cols-6 gap-4"
                 >
                     <Input
                         type="date"
@@ -82,13 +85,36 @@ export default function OvertimeReportPage({ reports, filters }: Props) {
                         </SelectContent>
                     </Select>
 
+                    <Select name="division_id" defaultValue={filters.division_id}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Division" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {divisions.map((d) => (
+                                <SelectItem key={d.id} value={String(d.id)}>
+                                    {d.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <Input
                         name="search"
                         placeholder="Nama staf"
                         defaultValue={filters.search}
                     />
 
-                    <Button type="submit">Filter</Button>
+                    <div className="flex gap-2">
+                        <Button type="submit">Filter</Button>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => router.get('/report/overtime')}
+                        >
+                            Reset
+                        </Button>
+                    </div>
                 </form>
 
                 {/* TABLE */}
@@ -97,6 +123,7 @@ export default function OvertimeReportPage({ reports, filters }: Props) {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Nama Staf</TableHead>
+                                <TableHead>Divisi</TableHead>
                                 <TableHead>Total Jam Lembur</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -105,7 +132,7 @@ export default function OvertimeReportPage({ reports, filters }: Props) {
                             {reports.length === 0 && (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={2}
+                                        colSpan={3}
                                         className="text-center text-muted-foreground"
                                     >
                                         Tidak ada data
@@ -114,8 +141,9 @@ export default function OvertimeReportPage({ reports, filters }: Props) {
                             )}
 
                             {reports.map((r) => (
-                                <TableRow key={r.id}>
+                                <TableRow key={r.user_id}>
                                     <TableCell>{r.name}</TableCell>
+                                    <TableCell>{r.division ?? '-'}</TableCell>
                                     <TableCell>{r.total_jam} jam</TableCell>
                                 </TableRow>
                             ))}

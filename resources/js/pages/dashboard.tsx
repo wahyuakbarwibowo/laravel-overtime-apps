@@ -10,6 +10,7 @@ interface Stats {
     pending: number;
     approved: number;
     my_overtime: number;
+    my_approved_overtime: number;
 }
 
 interface DashboardProps extends InertiaPageProps {
@@ -39,10 +40,19 @@ export default function Dashboard() {
                         />
                     )}
 
-                    <StatCard
-                        title="Approved Overtime"
-                        value={stats.approved}
-                    />
+                    {role !== 'staf' && (
+                        <StatCard
+                            title="Approved Overtime"
+                            value={stats.approved}
+                        />
+                    )}
+
+                    {role === 'staf' && (
+                        <StatCard
+                            title="My Approved Overtime"
+                            value={stats.my_approved_overtime}
+                        />
+                    )}
 
                     {role === 'staf' && (
                         <StatCard
@@ -64,13 +74,13 @@ export default function Dashboard() {
 
                     {role === 'manager' && (
                         <Button asChild>
-                            <a href="/overtime">Review Pengajuan Lembur</a>
+                            <a href="/overtime/approval">Review Pengajuan Lembur</a>
                         </Button>
                     )}
 
                     {role === 'staf' && (
                         <Button asChild>
-                            <a href="/overtime/staff">Lihat Lembur Saya</a>
+                            <a href="/overtime/staf">Lihat Lembur Saya</a>
                         </Button>
                     )}
 

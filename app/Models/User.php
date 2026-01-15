@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->role === UserRole::MANAGER;
     }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
 }
