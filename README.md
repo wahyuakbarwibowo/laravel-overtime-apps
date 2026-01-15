@@ -95,14 +95,14 @@ Dibangun sebagai studi kasus **Fullstack Developer** menggunakan **Laravel + Ine
 
 ### users
 
-| Kolom    | Tipe                                        |
-| -------- | ------------------------------------------- |
-| id       | bigint                                      |
-| name     | string                                      |
-| email    | string                                      |
-| password | string                                      |
-| role     | enum (`staf`, `leader`, `manager`, `admin`) |
-| division | string                                      |
+| Kolom       | Tipe                                        |
+| ----------- | ------------------------------------------- |
+| id          | bigint                                      |
+| name        | string                                      |
+| email       | string                                      |
+| password    | string                                      |
+| role        | enum (`staf`, `leader`, `manager`, `admin`) |
+| division_id | string                                      |
 
 ---
 
@@ -118,6 +118,16 @@ Dibangun sebagai studi kasus **Fullstack Developer** menggunakan **Laravel + Ine
 | jam_selesai | time                                     |
 | alasan      | text                                     |
 | status      | enum (`pending`, `approved`, `rejected`) |
+
+---
+
+### divisions
+
+| Kolom       | Tipe                                        |
+| ----------- | ------------------------------------------- |
+| id          | bigint                                      |
+| code        | string                                      |
+| name        | string                                      |
 
 ---
 
