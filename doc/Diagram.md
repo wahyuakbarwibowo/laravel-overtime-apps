@@ -68,7 +68,7 @@ Open "Create Overtime"
    |
    ▼
 Fill Form
-(tanggal, jam, alasan, staf)
+(tanggal, jam, alasan, staf, lampiran)
    |
    ▼
 Upload Lampiran? ── No ─┐
