@@ -42,13 +42,13 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Pengajuan Lembur',
-        href: '/overtime',
+        href: '/overtime/leader',
         icon: Clock,
         roles: ['leader'],
     },
     {
         title: 'Approval Lembur',
-        href: '/overtime',
+        href: '/overtime/approval',
         icon: CheckSquare,
         roles: ['manager'],
     },

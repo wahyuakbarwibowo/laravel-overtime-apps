@@ -34,8 +34,3 @@ export interface Overtime {
     staff?: OvertimeUser;
     leader?: OvertimeUser;
 }
-
-export interface OvertimeReportItem {
-    name: string;
-    total_jam: number;
-}

@@ -25,7 +25,7 @@ class OvertimeController extends Controller
             'leader_id' => auth()->id(),
         ]);
 
-        return redirect()->route('overtime.create')->with('success', 'Pengajuan lembur berhasil');
+        return redirect()->route('overtime.leader')->with('success', 'Pengajuan lembur berhasil');
     }
 
     public function create()
@@ -43,16 +43,16 @@ class OvertimeController extends Controller
         ]);
     }
 
-    public function approve(int $id)
+    public function approve(Overtime $overtime)
     {
-        Overtime::findOrFail($id)->update(['status' => 'approved']);
-        return redirect()->route('overtime.index')->with('success', 'Approved');
+        $overtime->update(['status' => 'approved']);
+        return back();
     }
 
-    public function reject(int $id)
+    public function reject(Overtime $overtime)
     {
-        Overtime::findOrFail($id)->update(['status' => 'rejected']);
-        return redirect()->route('overtime.index')->with('success', 'Rejected');
+        $overtime->update(['status' => 'rejected']);
+        return back();
     }
 
     // STAFF
@@ -66,9 +66,18 @@ class OvertimeController extends Controller
     // LEADER
     public function leaderList()
     {
-        return Inertia::render('Overtime/Leader', [
+        return Inertia::render('overtime/leader', [
             'overtimes' => Overtime::with('staff')
                 ->where('leader_id', auth()->id())
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function approvalList()
+    {
+        return Inertia::render('overtime/approval', [
+            'overtimes' => Overtime::with(['staff', 'leader'])
                 ->latest()
                 ->get(),
         ]);
