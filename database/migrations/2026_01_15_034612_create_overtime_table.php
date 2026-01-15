@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('overtime', function (Blueprint $table) {
+        Schema::create('overtimes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('staff_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('leader_id')->constrained('users')->cascadeOnDelete();

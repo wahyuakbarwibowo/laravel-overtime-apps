@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::middleware('role:leader')->group(function () {
+        Route::get('/overtime/create', [OvertimeController::class,'create'])->name('overtime.create');
         Route::post('/overtime', [OvertimeController::class,'store']);
         Route::get('/overtime/leader', [OvertimeController::class,'leaderList']);
     });

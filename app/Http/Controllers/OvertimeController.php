@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Overtime;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class OvertimeController extends Controller
 {
@@ -23,7 +25,14 @@ class OvertimeController extends Controller
             'leader_id' => auth()->id(),
         ]);
 
-        return response()->json(['message' => 'Pengajuan lembur berhasil']);
+        return redirect()->route('overtime.create')->with('success', 'Pengajuan lembur berhasil');
+    }
+
+    public function create()
+    {
+        return Inertia::render('overtime/create', [
+            'staffs' => User::where('role', 'staf')->get(['id', 'name'])
+        ]);
     }
 
     // MANAGER
