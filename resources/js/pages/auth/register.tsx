@@ -19,9 +19,11 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+import { Division } from "@/types/division";
 
-export default function Register() {
+export default function Register({ divisions }: { divisions: Division[] }) {
     const [role, setRole] = useState('');
+    const [divisionId, setDivisionId] = useState('');
 
     return (
         <AuthLayout
@@ -97,6 +99,41 @@ export default function Register() {
                                 <InputError message={errors.role} />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="division">Division</Label>
+
+                                <Select
+                                    value={divisionId}
+                                    onValueChange={(value) => setDivisionId(value)}
+                                >
+                                    <SelectTrigger tabIndex={4}>
+                                        <SelectValue placeholder="Select a division" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Division</SelectLabel>
+                                            {divisions.map((division) => (
+                                                <SelectItem
+                                                    key={division.id}
+                                                    value={String(division.id)}
+                                                >
+                                                    {division.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+
+                                {/* hidden input agar terkirim ke backend */}
+                                <input
+                                    type="hidden"
+                                    name="division_id"
+                                    value={divisionId}
+                                />
+
+                                <InputError message={errors.division_id} />
+                            </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
@@ -104,7 +141,7 @@ export default function Register() {
                                     id="password"
                                     type="password"
                                     required
-                                    tabIndex={4}
+                                    tabIndex={5}
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="Password"
@@ -120,7 +157,7 @@ export default function Register() {
                                     id="password_confirmation"
                                     type="password"
                                     required
-                                    tabIndex={5}
+                                    tabIndex={6}
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
@@ -133,7 +170,7 @@ export default function Register() {
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={6}
+                                tabIndex={7}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}

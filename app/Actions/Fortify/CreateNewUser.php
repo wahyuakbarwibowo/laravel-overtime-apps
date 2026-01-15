@@ -21,7 +21,8 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
-            'role' => ['required', 'string'],
+            'role' => ['required', 'in:staf,leader,manager,admin'],
+            'division_id' => ['nullable', 'exists:divisions,id'],
             'password' => $this->passwordRules(),
         ])->validate();
 
@@ -29,6 +30,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'role' => $input['role'],
+            'division_id' => $input['division_id'] ?? null,
             'password' => $input['password'],
         ]);
     }

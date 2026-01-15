@@ -39,7 +39,9 @@ class OvertimeController extends Controller
     public function create()
     {
         return Inertia::render('overtime/create', [
-            'staffs' => User::where('role', 'staf')->get(['id', 'name'])
+            'staffs' => User::where('role', 'staf')
+                ->where('division_id', auth()->user()->division_id)
+                ->get(['id', 'name'])
         ]);
     }
 
@@ -77,6 +79,9 @@ class OvertimeController extends Controller
         return Inertia::render('overtime/leader', [
             'overtimes' => Overtime::with('staff')
                 ->where('leader_id', auth()->id())
+                ->whereHas('staff', function ($q) {
+                    $q->where('division_id', auth()->user()->division_id);
+                })
                 ->latest()
                 ->get(),
         ]);
