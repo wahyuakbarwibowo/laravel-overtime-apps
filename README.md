@@ -1,213 +1,222 @@
-# SOLUSI STUDI KASUS
+# 🕒 Overtime Management System
 
-**Fitur Pengajuan, Approval & Report Lembur**
+Aplikasi manajemen lembur sederhana dengan fitur **pengajuan, approval, dan report lembur** berbasis **role** dan **division**.
 
-## 1. Arsitektur Umum
-
-* **Backend**: Laravel 10 (PHP 8.1)
-* **Database**: MySQL
-* **Auth**: Laravel Auth (Sanctum / Session-based)
-* **Frontend**: Blade (sederhana) atau React (nilai plus)
-* **Role-based Access Control (RBAC)**: Middleware
+Dibangun sebagai studi kasus **Fullstack Developer** menggunakan **Laravel + Inertia.js + React + TypeScript**.
 
 ---
 
-## 2. Role & Alur Bisnis
+## ✨ Fitur Utama
 
-### Workflow
+### 🔐 Authentication & Role
 
-```
-Leader membuat pengajuan → Manager approve/reject → 
-Staf melihat status → Admin/Atasan melihat report
-```
+* Login & Register
+* Role user:
 
-### Role
-
-| Role    | Hak Akses Utama              |
-| ------- | ---------------------------- |
-| Staf    | Melihat lembur miliknya      |
-| Leader  | Mengajukan lembur untuk staf |
-| Manager | Approve / Reject lembur      |
-| Admin   | Laporan & monitoring         |
+  * **Staf**
+  * **Leader**
+  * **Manager**
+  * **Admin**
+* Authorization berbasis role (middleware)
 
 ---
 
-## 3. Desain Database
+### 👤 Staf
 
-### 3.1 users
+* Melihat daftar lembur yang ditugaskan
+* Melihat status: `pending / approved / rejected`
+* Read-only (tidak bisa edit)
 
-```sql
-users
-- id
-- name
-- email
-- password
-- role (enum: staf, leader, manager, admin)
-- division_id (nullable)
-- timestamps
-```
+---
 
-### 3.2 overtime
+### 👨‍💼 Leader
 
-```sql
-overtime
-- id
-- staff_id (FK users.id)
-- leader_id (FK users.id)
-- tanggal
-- jam_mulai
-- jam_selesai
-- alasan
-- status (pending, approved, rejected)
-- attachment (nullable)
-- timestamps
-```
+* Membuat pengajuan lembur untuk staf
+* Data lembur:
 
-### 3.3 divisions (nilai plus)
+  * Tanggal
+  * Jam mulai & selesai
+  * Alasan
+  * Staf yang ditugaskan
+* Melihat daftar pengajuan yang dibuat beserta statusnya
 
-```sql
-divisions
-- id
-- name
+---
+
+### 🧑‍⚖️ Manager
+
+* Melihat seluruh pengajuan lembur
+* Melakukan **approve / reject**
+* Aksi hanya tersedia untuk status `pending`
+
+---
+
+### 📊 Admin / Atasan
+
+* Melihat **report total jam lembur per staf**
+* Filter laporan:
+
+  * Rentang tanggal
+  * Status lembur
+  * Division
+  * Search nama staf
+* Perhitungan total jam dilakukan di database (SQL aggregation)
+
+---
+
+### 🧭 Dashboard
+
+* Dashboard berbeda untuk setiap role
+* Menampilkan ringkasan data & quick action
+* Sidebar menu **role-based**
+
+---
+
+## 🧱 Teknologi yang Digunakan
+
+### Backend
+
+* **Laravel 12**
+* PHP **8.5**
+* Authentication: Laravel Fortify
+* Authorization: Middleware Role
+* Database: MySQL / PostgreSQL
+
+### Frontend
+
+* **Inertia.js**
+* **React + TypeScript**
+* Bun
+* shadcn/ui
+* Tailwind CSS
+
+---
+
+## 🗂 Struktur Database (Inti)
+
+### users
+
+| Kolom    | Tipe                                        |
+| -------- | ------------------------------------------- |
+| id       | bigint                                      |
+| name     | string                                      |
+| email    | string                                      |
+| password | string                                      |
+| role     | enum (`staf`, `leader`, `manager`, `admin`) |
+| division | string                                      |
+
+---
+
+### overtime
+
+| Kolom       | Tipe                                     |
+| ----------- | ---------------------------------------- |
+| id          | bigint                                   |
+| staff_id    | bigint                                   |
+| leader_id   | bigint                                   |
+| tanggal     | date                                     |
+| jam_mulai   | time                                     |
+| jam_selesai | time                                     |
+| alasan      | text                                     |
+| status      | enum (`pending`, `approved`, `rejected`) |
+
+---
+
+## 🧩 Role & Akses Menu
+
+| Role    | Menu                        |
+| ------- | --------------------------- |
+| Staf    | Dashboard, Lembur Saya      |
+| Leader  | Dashboard, Pengajuan Lembur |
+| Manager | Dashboard, Approval Lembur  |
+| Admin   | Dashboard, Report Lembur    |
+
+Sidebar ditampilkan **dinamis berdasarkan role user**.
+
+---
+
+## 🧠 Validasi & Business Rule
+
+* `jam_selesai` harus lebih besar dari `jam_mulai`
+* Staf tidak bisa mengubah data lembur
+* Leader hanya bisa melihat pengajuan miliknya
+* Manager hanya bisa approve/reject
+* Report hanya bisa diakses Admin / Manager
+
+---
+
+## 🚀 Instalasi & Setup
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone <repo-url>
+cd laravel-overtime-app
 ```
 
 ---
 
-## 4. Backend (Laravel)
+### 2️⃣ Backend Setup
 
-### 4.1 Middleware Role
-
-```php
-public function handle($request, Closure $next, ...$roles)
-{
-    if (!in_array(auth()->user()->role, $roles)) {
-        abort(403);
-    }
-    return $next($request);
-}
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
 ```
 
 ---
 
-### 4.2 API / Route Utama
+### 3️⃣ Frontend Setup
 
-```php
-Route::middleware(['auth'])->group(function () {
-
-    // Leader
-    Route::middleware('role:leader')->group(function () {
-        Route::post('/overtime', [OvertimeController::class, 'store']);
-        Route::get('/overtime/my-request', [OvertimeController::class, 'leaderList']);
-    });
-
-    // Manager
-    Route::middleware('role:manager')->group(function () {
-        Route::get('/overtime', [OvertimeController::class, 'index']);
-        Route::post('/overtime/{id}/approve', [OvertimeController::class, 'approve']);
-        Route::post('/overtime/{id}/reject', [OvertimeController::class, 'reject']);
-    });
-
-    // Staf
-    Route::middleware('role:staf')->group(function () {
-        Route::get('/overtime/my', [OvertimeController::class, 'staffList']);
-    });
-
-    // Report
-    Route::middleware('role:admin,manager')->group(function () {
-        Route::get('/report/overtime', [ReportController::class, 'overtimeReport']);
-    });
-
-});
+```bash
+bun install
+bun run dev
 ```
 
 ---
 
-### 4.3 Validasi (Minimal Requirement)
+### 4️⃣ Jalankan Aplikasi
 
-```php
-$request->validate([
-    'tanggal' => 'required|date',
-    'jam_mulai' => 'required',
-    'jam_selesai' => 'required|after:jam_mulai',
-    'staff_id' => 'required|exists:users,id',
-]);
+```bash
+php artisan serve
 ```
 
 ---
 
-### 4.4 Logic Approve / Reject
+## 🧪 Dummy Role (Testing)
 
-```php
-public function approve($id)
-{
-    $overtime = Overtime::findOrFail($id);
-    $overtime->status = 'approved';
-    $overtime->save();
-}
-```
+Saat register, user dapat memilih role:
 
----
+* staf
+* leader
+* manager
+* admin
 
-## 5. Report Lembur
-
-### Query Total Jam Lembur
-
-```sql
-SELECT users.name,
-SUM(TIMESTAMPDIFF(HOUR, jam_mulai, jam_selesai)) AS total_jam
-FROM overtime
-JOIN users ON users.id = overtime.staff_id
-WHERE tanggal BETWEEN :start AND :end
-AND status = 'approved'
-GROUP BY users.id;
-```
-
-### Filter Report
-
-* Rentang tanggal
-* Divisi
-* Status
-* Search nama staf
+> ⚠️ **Catatan:**
+> Untuk production, penentuan role admin/manager sebaiknya dibatasi di backend.
 
 ---
 
-## 6. Frontend (Contoh)
+## 🧠 Arsitektur & Best Practice
 
-Jika **Blade**:
-
-* Login page
-* Dashboard sesuai role
-* Table pengajuan lembur
-* Form pengajuan lembur
-* Halaman report (datatable + filter)
-
-Jika **React (nilai plus)**:
-
-* React + Axios
-* Protected Route berdasarkan role
-* Reusable Table & Filter Component
+* Role-based access control
+* Type-safe frontend (TypeScript)
+* Centralized sidebar config
+* SQL aggregation untuk report (performance-friendly)
+* Clean separation antara UI, logic, dan authorization
 
 ---
 
-## 7. Keamanan & Best Practice
+## 🎤 Catatan Presentasi (Interview)
 
-* Policy Laravel untuk akses data
-* Enum status
-* Soft delete (opsional)
-* Pagination
-* File upload validation (lampiran)
+> “Aplikasi ini dirancang untuk mensimulasikan workflow pengajuan lembur dari leader, approval oleh manager, hingga reporting oleh admin, dengan kontrol akses yang jelas di setiap layer.”
 
 ---
 
-## 8. Nilai Plus (Opsional)
+## 📌 Pengembangan Selanjutnya
 
 * Export report ke Excel
-* Notification (email / database)
+* Chart lembur per staf / division
 * Audit log approval
-* Unit test (feature test)
-
----
-
-## 9. Penutup (Untuk Presentasi)
-
-> *“Solusi ini menerapkan workflow bisnis end-to-end, role-based access, validasi data, serta report agregasi lembur. Struktur dibuat scalable dan clean dengan Laravel best practices.”*
+* Pagination & caching report
+* Policy-based authorization
