@@ -33,6 +33,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    role: string;
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
@@ -40,3 +41,5 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export type UserRole = 'staf' | 'leader' | 'manager' | 'admin';
