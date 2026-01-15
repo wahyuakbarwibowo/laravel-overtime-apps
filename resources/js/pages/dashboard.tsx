@@ -1,37 +1,96 @@
-import { Head } from '@inertiajs/react';
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { Head, usePage } from '@inertiajs/react';
 
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 
+interface Stats {
+    pending: number;
+    approved: number;
+    my_overtime: number;
+}
+
+interface DashboardProps extends InertiaPageProps {
+    role: 'staf' | 'leader' | 'manager' | 'admin';
+    stats: Stats;
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
+    { title: 'Dashboard', href: dashboard().url },
 ];
 
 export default function Dashboard() {
+    const { role, stats } = usePage<DashboardProps>().props;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+
+            <div className="flex flex-col gap-6 p-4">
+
+                {/* ===== SUMMARY CARDS ===== */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {role !== 'staf' && (
+                        <StatCard
+                            title="Pending Approval"
+                            value={stats.pending}
+                        />
+                    )}
+
+                    <StatCard
+                        title="Approved Overtime"
+                        value={stats.approved}
+                    />
+
+                    {role === 'staf' && (
+                        <StatCard
+                            title="My Overtime"
+                            value={stats.my_overtime}
+                        />
+                    )}
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                {/* ===== QUICK ACTION ===== */}
+                <div className="rounded-xl border p-6 space-y-4">
+                    <h2 className="text-lg font-semibold">Quick Action</h2>
+
+                    {role === 'leader' && (
+                        <Button asChild>
+                            <a href="/overtime/create">Buat Pengajuan Lembur</a>
+                        </Button>
+                    )}
+
+                    {role === 'manager' && (
+                        <Button asChild>
+                            <a href="/overtime">Review Pengajuan Lembur</a>
+                        </Button>
+                    )}
+
+                    {role === 'staf' && (
+                        <Button asChild>
+                            <a href="/overtime/staff">Lihat Lembur Saya</a>
+                        </Button>
+                    )}
+
+                    {role === 'admin' && (
+                        <Button asChild>
+                            <a href="/report/overtime">Lihat Report Lembur</a>
+                        </Button>
+                    )}
                 </div>
+
             </div>
         </AppLayout>
+    );
+}
+
+function StatCard({ title, value }: { title: string; value: number }) {
+    return (
+        <div className="rounded-xl border p-4">
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold">{value}</p>
+        </div>
     );
 }

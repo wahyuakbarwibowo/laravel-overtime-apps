@@ -38,30 +38,39 @@ class OvertimeController extends Controller
     // MANAGER
     public function index()
     {
-        return Overtime::with(['staff', 'leader'])->latest()->get();
+        return Inertia::render('overtime/index', [
+            'overtimes' => Overtime::with('staff', 'leader')->latest()->get()
+        ]);
     }
 
     public function approve(int $id)
     {
         Overtime::findOrFail($id)->update(['status' => 'approved']);
-        return response()->json(['message' => 'Approved']);
+        return redirect()->route('overtime.index')->with('success', 'Approved');
     }
 
     public function reject(int $id)
     {
         Overtime::findOrFail($id)->update(['status' => 'rejected']);
-        return response()->json(['message' => 'Rejected']);
+        return redirect()->route('overtime.index')->with('success', 'Rejected');
     }
 
     // STAFF
     public function staffList()
     {
-        return Overtime::where('staff_id', auth()->id())->get();
+        return Inertia::render('overtime/staff', [
+            'overtimes' => Overtime::where('staff_id', auth()->id())->get()
+        ]);
     }
 
     // LEADER
     public function leaderList()
     {
-        return Overtime::where('leader_id', auth()->id())->get();
+        return Inertia::render('Overtime/Leader', [
+            'overtimes' => Overtime::with('staff')
+                ->where('leader_id', auth()->id())
+                ->latest()
+                ->get(),
+        ]);
     }
 }

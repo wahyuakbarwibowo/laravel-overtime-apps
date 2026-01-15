@@ -77,11 +77,11 @@ export default function Register() {
                                     value={role}
                                     onValueChange={(value) => setRole(value)}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger tabIndex={3}>
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
 
-                                    <SelectContent tabIndex={3}>
+                                    <SelectContent>
                                         <SelectGroup>
                                             <SelectLabel>Role</SelectLabel>
                                             <SelectItem value="staf">Staf</SelectItem>
