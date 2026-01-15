@@ -30,6 +30,7 @@ export interface Overtime {
     status: OvertimeStatus;
     created_at: string;
     updated_at: string;
+    attachment_path?: string | null;
 
     staff?: OvertimeUser;
     leader?: OvertimeUser;

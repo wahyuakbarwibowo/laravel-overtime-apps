@@ -70,6 +70,7 @@ export default function Approval({ overtimes }: Props) {
                                 <TableHead>Leader</TableHead>
                                 <TableHead>Jam</TableHead>
                                 <TableHead>Alasan</TableHead>
+                                <TableHead>Lampiran</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">
                                     Aksi
@@ -99,10 +100,21 @@ export default function Approval({ overtimes }: Props) {
                                         {o.leader?.name ?? '-'}
                                     </TableCell>
                                     <TableCell>
-                                        {o.jam_mulai} – {o.jam_selesai}
+                                        {o.jam_mulai} - {o.jam_selesai}
                                     </TableCell>
                                     <TableCell className="max-w-xs truncate">
                                         {o.alasan}
+                                    </TableCell>
+                                    <TableCell>
+                                        {o.attachment_path && (
+                                            <a
+                                                href={`/storage/${o.attachment_path}`}
+                                                target="_blank"
+                                                className="text-blue-600 underline"
+                                            >
+                                                Lihat Lampiran
+                                            </a>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <Badge

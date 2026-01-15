@@ -15,7 +15,8 @@ class Overtime extends Model
         'jam_selesai',
         'alasan',
         'status',
-        'attachment'
+        'attachment',
+        'attachment_path',
     ];
 
     public function staff(): BelongsTo

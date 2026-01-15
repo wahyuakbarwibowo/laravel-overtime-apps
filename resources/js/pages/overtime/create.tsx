@@ -27,11 +27,14 @@ export default function Create({ staffs }: { staffs: Staff[] }) {
     jam_mulai: '',
     jam_selesai: '',
     alasan: '',
+    attachment: null as File | null,
   });
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    post('/overtime');
+    post('/overtime', {
+      forceFormData: true,
+    });
   }
 
   return (
@@ -63,6 +66,19 @@ export default function Create({ staffs }: { staffs: Staff[] }) {
             placeholder="Alasan lembur"
             onChange={e => setData('alasan', e.target.value)}
           />
+
+          <div className="grid gap-2">
+            <Label>Lampiran (opsional)</Label>
+            <Input
+              type="file"
+              name="attachment"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) =>
+                setData('attachment', e.target.files ? e.target.files[0] : null)
+              }
+            />
+            <InputError message={errors.attachment} />
+          </div>
 
           <InputError message={errors.jam_selesai} />
 

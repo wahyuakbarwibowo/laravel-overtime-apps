@@ -17,11 +17,19 @@ class OvertimeController extends Controller
             'tanggal' => ['required', 'date'],
             'jam_mulai' => ['required'],
             'jam_selesai' => ['required', 'after:jam_mulai'],
-            'alasan' => ['required']
+            'alasan' => ['required'],
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('attachment')) {
+            $validated['attachment_path'] = $request
+                ->file('attachment')
+                ->store('overtime-attachments', 'public');
+        }
 
         Overtime::create([
             ...$validated,
+            'status' => 'pending',
             'leader_id' => auth()->id(),
         ]);
 

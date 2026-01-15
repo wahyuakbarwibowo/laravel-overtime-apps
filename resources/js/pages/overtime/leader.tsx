@@ -68,6 +68,7 @@ export default function LeaderList({ overtimes }: Props) {
                 <TableHead>Staf</TableHead>
                 <TableHead>Jam</TableHead>
                 <TableHead>Alasan</TableHead>
+                <TableHead>Lampiran</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -76,7 +77,7 @@ export default function LeaderList({ overtimes }: Props) {
               {overtimes.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center text-muted-foreground"
                   >
                     Belum ada pengajuan lembur
@@ -95,6 +96,17 @@ export default function LeaderList({ overtimes }: Props) {
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {o.alasan}
+                  </TableCell>
+                  <TableCell>
+                    {o.attachment_path && (
+                      <a
+                        href={`/storage/${o.attachment_path}`}
+                        target="_blank"
+                        className="text-blue-600 underline"
+                      >
+                        Lihat Lampiran
+                      </a>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant[o.status]}>
